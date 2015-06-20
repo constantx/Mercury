@@ -3,6 +3,7 @@
 
 var React = require('react-native');
 var GStyles = require('./global-styles.js');
+var Button = require('./button');
 
 var {
   StyleSheet,
@@ -18,7 +19,15 @@ var styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: GStyles.colorMain,
   },
-  instructions: {
+  instructionHeading: {
+    textAlign: 'center',
+    color: GStyles.colorText,
+    marginBottom: 5,
+    fontFamily: GStyles.typeface,
+    fontWeight: 'bold',
+    fontSize: 24
+  },
+  instruction: {
     textAlign: 'center',
     color: GStyles.colorText,
     marginBottom: 5,
@@ -37,16 +46,32 @@ var styles = StyleSheet.create({
 });
 
 module.exports = React.createClass({
-  render: () => {
+  getInitialState () {
+    return {
+      buttonText: 'send'
+    }
+  },
+
+  _send () {
+
+  },
+
+  render () {
     return (
       <View style={styles.container}>
-        <Text style={styles.instructions}>
-          Enter phone #
+        <Text style={styles.instructionHeading}>
+          Mercury is ready…
         </Text>
+        <Text style={styles.instructions}>
+          Enter phone # to send
+        </Text>
+
         <TextInput
           style={styles.tinput}
           onChangeText={(text) => this.setState({input: text})}
         />
+
+        <Button style={GStyles.button} onPress={this._send} text={this.state.buttonText} />
       </View>
     );
   }
