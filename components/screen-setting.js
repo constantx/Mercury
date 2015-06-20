@@ -3,12 +3,14 @@
 
 var React = require('react-native');
 var GStyles = require('./global-styles.js');
+var Button = require('./button');
 
 var {
+  AsyncStorage,
   StyleSheet,
   Text,
   TextInput,
-  View,
+  View
 } = React;
 
 var styles = StyleSheet.create({
@@ -37,16 +39,49 @@ var styles = StyleSheet.create({
 });
 
 module.exports = React.createClass({
-  render: function () {
+
+  getInitialState () {
+    return {
+      buttonText: this._getDefaultButtonText(),
+      username: null
+    }
+  },
+
+  _getDefaultButtonText: function () {
+    return 'save';
+  },
+
+  _saveSetting () {
+    if (!this.state.username) {
+      return
+    }
+
+    console.log('username is', this.state.username);
+
+    AsyncStorage
+      .setItem('username', this.state.username)
+      .then(() => {
+        this.setState({buttonText: 'saved'});
+      });
+  },
+
+  render () {
     return (
       <View style={styles.container}>
         <Text style={styles.instructions}>
-          What's your JSON Resume username?
+          What is JSON Resume username?
         </Text>
         <TextInput
           style={styles.tinput}
-          onChangeText={(text) => this.setState({input: text})}
+          autoFocus={true}
+          clearButtonMode="while-editing"
+          onChangeText={(text) => this.setState({
+            username: text,
+            buttonText: this._getDefaultButtonText()
+          })}
+          onSubmitEditing={this._saveSetting}
         />
+        <Button style={GStyles.button} onPress={this._saveSetting} text={this.state.buttonText} />
       </View>
     );
   }
