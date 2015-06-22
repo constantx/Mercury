@@ -1,3 +1,8 @@
+/**
+ * place holder module for text-only link
+ * waiting for https://github.com/facebook/react-native/pull/845
+ */
+
 'use strict';
 
 var React = require('react-native');
@@ -10,16 +15,15 @@ var {
 
 var styles = StyleSheet.create({
   button: {
-    backgroundColor: GStyles.colorBorder,
+    flex: 1,
+    fontSize: 14,
     margin: GStyles.margin,
-    paddingTop: GStyles.padder,
-    paddingRight: GStyles.padder * 2,
-    paddingBottom: GStyles.padder,
-    paddingLeft: GStyles.padder * 2
   },
   buttonText: {
     fontFamily: GStyles.typeface,
-    color: GStyles.colorTextLight
+    color: GStyles.colorTextSub,
+    borderBottomWidth: 1,
+    borderBottomColor: GStyles.colorTextSub
   }
 });
 
@@ -30,7 +34,7 @@ module.exports = class Button extends React.Component {
         style={styles.button}
         onPress={this.props.onPress}
         activeOpacity={0.8}>
-        <Text style={styles.buttonText}>{this.props.text.toUpperCase()}</Text>
+        <Text style={styles.buttonText}>{this.props.text}</Text>
       </TouchableHighlight>
     );
   }

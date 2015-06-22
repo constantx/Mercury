@@ -2,6 +2,7 @@ var typeface = 'Avenir';
 var colorMain = '#fff48b';
 var colorText = '#130f01';
 var colorTextLight = '#fffcf4';
+var colorTextSub = '#94907f';
 var colorBorder = '#130f01';
 
 module.exports = {
