@@ -20,12 +20,13 @@ var router = require('./components/router');
 var GStyles = require('./components/global-styles.js');
 var ScreenSettings = require('./components/screen-settings.js')
 var ScreenCompose = require('./components/screen-compose.js');
+var AppStore = require('./stores/AppStore');
+
 var {
   AppRegistry,
   AsyncStorage,
   Navigator
 } = React;
-
 
 var Mercury = React.createClass({
 
@@ -41,14 +42,52 @@ var Mercury = React.createClass({
     switch (route.id) {
       case 'compose':
         return <ScreenCompose
+          username={this.state.username}
+          displayName={this.state.displayName}
           navigator={navigator} />;
       case 'settings':
         return <ScreenSettings
+          username={this.state.username}
+          displayName={this.state.displayName}
           navigator={navigator} />
       default:
         return;
     }
   },
+
+
+  _onChange () {
+    debug('_onChange');
+    this._setAppState();
+  },
+
+
+  _setAppState () {
+    debug('_setAppState');
+    AppStore.getKeys(['username', 'displayName'])
+      .then((val) => {
+        this.setState({
+          'username': val[0][1],
+          'displayName': val[1][1]
+        });
+      })
+      .done();
+
+    return;
+  },
+
+
+  componentDidMount () {
+    AppStore.addChangeListener(this._onChange);
+
+    this._setAppState();
+  },
+
+
+  componentWillUnmount () {
+    AppStore.removeChangeListener(this._onChange);
+  },
+
 
   render () {
     return (

@@ -7,6 +7,8 @@ var GStyles = require('./global-styles.js');
 var Button = require('./button');
 var Footer = require('./screen-footer');
 var config = require('./config');
+var BTN_STATE_DELAY = 1000;
+var AppActions = require('../actions/AppActions');
 
 var {
   AsyncStorage,
@@ -43,32 +45,11 @@ var styles = StyleSheet.create({
 
 module.exports = React.createClass({
 
-
   getInitialState () {
     return {
       buttonText: this._getDefaultButtonText(),
-      username: null
+      username: this.props.username
     }
-  },
-
-
-  componentDidMount: function () {
-    AsyncStorage.getItem('username')
-      .then((value) => {
-        debug('settings componentDidMount value', value);
-        if (value !== null){
-          this.setState({
-            username: value
-          });
-        }
-      })
-      .catch((error) => alert('AsyncStorage error: ' + error.message))
-      .done();
-  },
-
-
-  _getDefaultButtonText: function () {
-    return 'save';
   },
 
 
@@ -77,26 +58,38 @@ module.exports = React.createClass({
   },
 
 
+  _clearSettings () {
+    AppActions.removeKeys(['username', 'displayName']);
+
+    return;
+  },
+
+
+  _getDefaultButtonText: function () {
+    return 'save';
+  },
+
+
   _saveSetting () {
     if (!this.state.username) {
       this._clearSettings();
-      return
+      return;
     }
 
     debug('saving username', this.state.username);
+
+    this.setState({buttonText: 'saving…'});
 
     fetch(this._buildJSONResumeURL())
       .then((response) => response.text())
       .then((responseText) => {
         var blob = JSON.parse(responseText);
-        debug('err', blob);
         debug('responseText.basics.name', blob.basics.name);
         if (blob.basics && blob.basics.name) {
-          AsyncStorage
-            .multiSet([
-              ['username', this.state.username],
-              ['displayName', blob.basics.name]
-            ]);
+          AppActions.saveKeys([
+            ['username', this.state.username],
+            ['displayName', blob.basics.name]
+          ]);
         }
       })
       .then(() => {
@@ -105,21 +98,26 @@ module.exports = React.createClass({
       .then(() => {
         setTimeout(() => {
           this.props.navigator.pop();
-        }, 1000);
+        }, BTN_STATE_DELAY);
       })
       .catch((error) => {
-        debug('error', err.message);
-      });
+        debug('error', error.message);
+      })
+      .done();
   },
 
-  _clearSettings () {
-    AsyncStorage
-      .multiSet([
-        ['username', ''],
-        ['displayName', '']
-      ]);
 
-    return;
+  _onReset () {
+    this.setState({
+      username: '',
+      buttonText: 'cleared'
+    }).then(() => {
+      setTimeout(() => {
+        this.setState({
+          buttonText: this._getDefaultButtonText()
+        });
+      }, BTN_STATE_DELAY);
+    });
   },
 
 
@@ -134,14 +132,6 @@ module.exports = React.createClass({
         'buttonText': this._getDefaultButtonText()
       });
     }
-  },
-
-  _renderFooter () {
-    return (
-      <Footer
-        activeScreen='settings'
-        navigator={this.props.navigator} />
-    );
   },
 
 
@@ -164,7 +154,9 @@ module.exports = React.createClass({
 
         <Button style={GStyles.button} onPress={this._saveSetting} text={this.state.buttonText} />
 
-        {this._renderFooter()}
+        <Footer
+          activeScreen='settings'
+          navigator={this.props.navigator} />
       </View>
     );
   }

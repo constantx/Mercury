@@ -60,7 +60,6 @@ module.exports = React.createClass({
   },
 
   render() {
-    debug('this.props.activeScreen', this.props.activeScreen);
     return (
       <View style={styles.footer}>
         { this.props.activeScreen === 'compose'
