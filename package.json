@@ -7,6 +7,9 @@
   },
   "dependencies": {
     "debug": "^2.2.0",
+    "events": "^1.0.2",
+    "flux": "^2.0.3",
+    "object-assign": "^3.0.0",
     "phone": "^1.0.4",
     "react-native": "^0.5.0"
   }
