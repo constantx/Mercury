@@ -56,30 +56,13 @@ var styles = StyleSheet.create({
 });
 
 module.exports = React.createClass({
+
+
   getInitialState () {
     return {
       buttonText: this._getDefaultButtonText(),
       isSending: false
     }
-  },
-
-
-  componentDidMount () {
-    debug('componentDidMount');
-    AsyncStorage.multiGet(['username', 'displayName'])
-      .then((value) => {
-        debug('got store', value);
-        if (value[0][1]){
-          this.setState({
-            username: value[0][1],
-            displayName: value[1][1]
-          });
-        } else {
-          this._gotoSettings();
-        }
-      })
-      .catch((error) => alert('AsyncStorage error: ' + error.message))
-      .done();
   },
 
 
@@ -96,10 +79,11 @@ module.exports = React.createClass({
   _buildURL () {
     var endpoint = 'https://fi-sensical-co.herokuapp.com/mercury/sms'
     var query = [
-      `username=${this.state.username}`,
+      `username=${this.props.username}`,
+      `displayName=${this.props.displayName}`,
       `phone=${this.state.phone}`,
-      `displayName=${this.state.displayName}`
     ].join('&');
+
     return `${endpoint}?${query}`;
   },
 
@@ -107,12 +91,15 @@ module.exports = React.createClass({
   _send () {
     debug('sending to', this.state.phone);
 
+    debug('built url', this.props);
+
     if (this.state.isSending) return;
 
     if (!this.state.phone) return;
 
-    if (!this.state.username) {
+    if (!this.props.username) {
       this._gotoSettings();
+      return;
     }
 
     // set sending state
@@ -121,25 +108,28 @@ module.exports = React.createClass({
       buttonText: 'sending…'
     });
 
+    debug('built url', this._buildURL());
+
     fetch(this._buildURL())
       .then((response) => response.text())
       .then((responseText) => {
-        console.log('success');
+        debug('success');
+
         this.setState({
-          isSending: false,
-          phone: '',
           buttonText: 'done!'
         });
 
         // reset button text after a second
         setTimeout(() => {
           this.setState({
-            buttonText: this._getDefaultButtonText()
+            buttonText: this._getDefaultButtonText(),
+            phone: '',
+            isSending: false
           });
         }, 1000);
       })
       .catch((error) => {
-        console.log('error', err.message);
+        debug('error', err.message);
       });
   },
 
@@ -148,14 +138,14 @@ module.exports = React.createClass({
     return (
       <View style={styles.container}>
         <Text style={styles.username}>
-          {this.state.username} {this.state.displayName ? `(${this.state.displayName})` : '' }
+          {this.props.username} {this.props.displayName ? `(${this.props.displayName})` : '' }
         </Text>
 
         <Text style={styles.instructionHeading}>
           Mercury is ready…
         </Text>
         <Text style={styles.instruction}>
-          Enter phone # to send
+          Enter phone # to send to
         </Text>
 
         <TextInput
