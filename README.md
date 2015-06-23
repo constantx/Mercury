@@ -10,4 +10,8 @@ send bizcard via SMS, powered by JSON Resume and react-native
 - open Mercury.xcodeproj in XCode & run
 
 ## production
-- todo: figure out how to disable development mode and turn on performance optimization for react-native build
+- checkout `release` branch
+- rebase to master
+- run `react-native bundle --minify` from project root
+- select `Mercury Release` Scheme in XCode
+- Build > Archive
