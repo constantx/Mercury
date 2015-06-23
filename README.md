@@ -13,5 +13,5 @@ send bizcard via SMS, powered by JSON Resume and react-native
 - checkout `release` branch
 - rebase to master
 - run `react-native bundle --minify` from project root
-- select `Mercury Release` Scheme in XCode
+- set active Scheme to `Mercury Release > iOS Device`in XCode
 - Build > Archive
