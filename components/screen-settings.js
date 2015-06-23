@@ -6,6 +6,7 @@ var React = require('react-native');
 var GStyles = require('./global-styles.js');
 var Button = require('./button');
 var Footer = require('./screen-footer');
+var config = require('./config');
 
 var {
   AsyncStorage,
@@ -42,12 +43,14 @@ var styles = StyleSheet.create({
 
 module.exports = React.createClass({
 
+
   getInitialState () {
     return {
       buttonText: this._getDefaultButtonText(),
       username: null
     }
   },
+
 
   componentDidMount: function () {
     AsyncStorage.getItem('username')
@@ -63,23 +66,62 @@ module.exports = React.createClass({
       .done();
   },
 
+
   _getDefaultButtonText: function () {
     return 'save';
   },
 
+
+  _buildJSONResumeURL: function () {
+    return [config.resumeRoot, this.state.username, '.json'].join('');
+  },
+
+
   _saveSetting () {
     if (!this.state.username) {
+      this._clearSettings();
       return
     }
 
-    debug('savesetting username is', this.state.username);
+    debug('saving username', this.state.username);
 
-    AsyncStorage
-      .setItem('username', this.state.username)
+    fetch(this._buildJSONResumeURL())
+      .then((response) => response.text())
+      .then((responseText) => {
+        var blob = JSON.parse(responseText);
+        debug('err', blob);
+        debug('responseText.basics.name', blob.basics.name);
+        if (blob.basics && blob.basics.name) {
+          AsyncStorage
+            .multiSet([
+              ['username', this.state.username],
+              ['displayName', blob.basics.name]
+            ]);
+        }
+      })
       .then(() => {
         this.setState({buttonText: 'saved'});
+      })
+      .then(() => {
+        setTimeout(() => {
+          this.props.navigator.pop();
+        }, 1000);
+      })
+      .catch((error) => {
+        debug('error', err.message);
       });
   },
+
+  _clearSettings () {
+    AsyncStorage
+      .multiSet([
+        ['username', ''],
+        ['displayName', '']
+      ]);
+
+    return;
+  },
+
 
   _handleChangedText (text) {
     this.setState({
@@ -94,11 +136,20 @@ module.exports = React.createClass({
     }
   },
 
+  _renderFooter () {
+    return (
+      <Footer
+        activeScreen='settings'
+        navigator={this.props.navigator} />
+    );
+  },
+
+
   render () {
     return (
       <View style={styles.container}>
         <Text style={styles.instructions}>
-          What is JSON Resume username?
+          Please enter your JSON Resume username
         </Text>
 
         <TextInput
@@ -113,9 +164,7 @@ module.exports = React.createClass({
 
         <Button style={GStyles.button} onPress={this._saveSetting} text={this.state.buttonText} />
 
-        <Footer
-          activeScreen='settings'
-          navigator={this.props.navigator} />
+        {this._renderFooter()}
       </View>
     );
   }

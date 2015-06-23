@@ -5,31 +5,27 @@
  * Sample JSON
  * http://registry.jsonresume.org/constantx.json
  * http://registry.jsonresume.org/thomasdavis.json
+ *
+ * Sample Business Card Link
+ * http://registry.jsonresume.org/constantx?theme=business-card
  */
 'use strict';
 
 
+window.MercuryDebug = require('debug');
+var debug = require('debug')('index.ios');
 var React = require('react-native');
+var flux = require('flux');
+var router = require('./components/router');
 var GStyles = require('./components/global-styles.js');
-var ScreenSetting = require('./components/screen-setting.js')
-var ScreenCompose = require('./components/screen-compose.js')
-var NavigatorExample = require('./components/ExampleNavigator/NavigatorExample')
+var ScreenSettings = require('./components/screen-settings.js')
+var ScreenCompose = require('./components/screen-compose.js');
 var {
   AppRegistry,
   AsyncStorage,
   Navigator
 } = React;
 
-var routes = {
-  'settings': {
-    id: 'settings',
-    name: 'Settings'
-  },
-  'compose': {
-    id: 'compose',
-    name: 'Compose'
-  }
-};
 
 var Mercury = React.createClass({
 
@@ -38,44 +34,27 @@ var Mercury = React.createClass({
       initialRouteId: 'compose'
     }
   },
-  /**
-   * see if there's already a user name in storeage
-   * if not, set initial route to settings screen
-   * @return {[type]} [description]
-   */
-  componentDidMount () {
-    AsyncStorage.getItem('username')
-      .then((value) => {
-        console.log('componentDidMount value', value);
-        if (value !== null){
-          this.setState({initialRouteId: 'settings'});
-        } else {
-          this.setState({initialRouteId: 'compose'});
-        }
-      })
-      .catch((error) => alert('AsyncStorage error: ' + error.message))
-      .done();
-  },
 
-  renderScene (route, navigator) {
-    console.log('renderScene route', route);
+  _renderScene (route, navigator) {
+    debug('renderScene route', route);
+
     switch (route.id) {
       case 'compose':
-        return <ScreenCompose navigator={navigator} />;
+        return <ScreenCompose
+          navigator={navigator} />;
+      case 'settings':
+        return <ScreenSettings
+          navigator={navigator} />
       default:
-        return (
-          <ScreenSetting navigator={navigator} />
-        );
+        return;
     }
   },
 
   render () {
     return (
-      // <NavigatorExample />
-
       <Navigator
-        initialRoute={routes[this.state.initialRouteId]}
-        renderScene={this.renderScene}
+        initialRoute={router['compose']}
+        renderScene={this._renderScene}
         configureScene={(route, navigator) => {
           if (route && route.sceneConfig) {
             return route.sceneConfig;

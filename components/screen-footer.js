@@ -4,6 +4,7 @@
 var debug = require('debug')('screen-footer');
 var React = require('react-native');
 var GStyles = require('./global-styles.js');
+var router = require('./router');
 var {
   View,
   StyleSheet,
@@ -50,7 +51,7 @@ class SettingsButton extends React.Component {
 module.exports = React.createClass({
   _gotoSettings () {
     debug('_gotoSettings', this.props.navigator);
-    this.props.navigator.push({ id: 'settings' });
+    this.props.navigator.push(router['settings']);
   },
 
   _gotoCompose () {
